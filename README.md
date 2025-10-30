@@ -1,0 +1,669 @@
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz: Desafio Logística de Expedição</title>
+    <style>
+        :root {
+            --cor-principal: #007BFF;
+            --cor-secundaria: #28a745;
+            --cor-fundo: #f8f9fa;
+            --cor-texto: #343a40;
+            --cor-borda: #dee2e6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--cor-fundo);
+            color: var(--cor-texto);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            color: var(--cor-principal);
+            text-align: center;
+            border-bottom: 2px solid var(--cor-borda);
+            padding-bottom: 10px;
+            margin-bottom: 5px; /* Reduz margem para caber o nome do professor */
+        }
+        
+        .professor-name {
+            text-align: center;
+            font-size: 1.2em;
+            color: #6c757d;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .quiz-header, .quiz-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid var(--cor-borda);
+            border-radius: 5px;
+            background-color: #e9ecef;
+        }
+
+        #timer {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #dc3545; /* Cor de alerta */
+        }
+
+        #quiz-box {
+            display: none;
+        }
+
+        .question-box {
+            margin-bottom: 25px;
+            padding: 15px;
+            border: 1px solid var(--cor-borda);
+            border-radius: 5px;
+            background-color: #fff;
+        }
+
+        .question-box h3 {
+            margin-top: 0;
+            color: var(--cor-principal);
+        }
+
+        .option-label {
+            display: block;
+            margin: 8px 0;
+            padding: 10px;
+            background-color: #f1f1f1;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .option-label:hover {
+            background-color: #e2e6ea;
+        }
+
+        .option-label input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        .button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .button-primary {
+            background-color: var(--cor-principal);
+            color: white;
+        }
+
+        .button-primary:hover {
+            background-color: #0056b3;
+            transform: translateY(-1px);
+        }
+
+        .button-success {
+            background-color: var(--cor-secundaria);
+            color: white;
+        }
+
+        .button-success:hover {
+            background-color: #1e7e34;
+            transform: translateY(-1px);
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .input-group input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--cor-borda);
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        #results-box {
+            display: none;
+            margin-top: 30px;
+            padding: 20px;
+            border-top: 2px dashed var(--cor-principal);
+            text-align: center;
+        }
+
+        #ranking-box {
+            margin-top: 30px;
+            padding: 15px;
+            border: 1px solid var(--cor-borda);
+            border-radius: 5px;
+            background-color: #f1f1f1;
+        }
+
+        #ranking-box h3 {
+            color: var(--cor-secundaria);
+            text-align: center;
+        }
+
+        #ranking-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        #ranking-list li {
+            padding: 8px;
+            border-bottom: 1px dotted var(--cor-borda);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #ranking-list li:first-child {
+            font-weight: bold;
+            background-color: #ffe0b2; /* Destaque para o 1º lugar */
+        }
+
+        .medal-icon {
+            font-size: 2.5em;
+            margin-top: 10px;
+        }
+
+        .gold { color: gold; }
+        .silver { color: silver; }
+        .bronze { color: #cd7f32; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🚛 Desafio Logística de Expedição</h1>
+        <span class="professor-name">Professor Luiz Eduardo Peixoto</span>
+        <p style="text-align: center;">Olá, aluno(a)! Você terá **20 minutos** para responder às 15 questões sobre os processos críticos e avançados da expedição logística. Boa sorte!</p>
+    </header>
+
+    <div id="start-screen">
+        <div class="input-group">
+            <label for="student-name">👤 **Seu Nome Completo:**</label>
+            <input type="text" id="student-name" placeholder="Digite seu nome para o ranking" maxlength="50">
+        </div>
+        <button id="start-button" class="button button-primary" onclick="startQuiz()">
+            🚀 Iniciar Atividade (20 Minutos)
+        </button>
+    </div>
+
+    <div id="quiz-box">
+        <div class="quiz-header">
+            <span>⏱️ **Tempo Restante:** <span id="timer">20:00</span></span>
+            <span>💯 **Pontuação:** <span id="score-display">0</span></span>
+        </div>
+
+        <form id="quiz-form">
+            </form>
+
+        <div class="quiz-controls">
+            <button id="finish-button" class="button button-success" onclick="finishQuiz()" disabled>
+                ✅ Finalizar e Ver Resultado
+            </button>
+        </div>
+    </div>
+
+    <div id="results-box">
+        <h2>🎉 Resultados da Expedição!</h2>
+        <p>Parabéns, <strong id="final-name"></strong>!</p>
+        <p>Você acertou **<span id="correct-count">0</span>** de 15 questões.</p>
+        <p>Sua Pontuação Final: **<span id="final-score">0</span>** pontos.</p>
+        <p>Tempo Gasto: **<span id="time-spent"></span>**.</p>
+        <h3>🏅 Seu Desempenho</h3>
+        <p id="medal-message"></p>
+        <div id="medal-icon" class="medal-icon"></div>
+    </div>
+
+    <div id="ranking-box">
+        <h3>🏆 Ranking Local de Expedição</h3>
+        <ul id="ranking-list">
+            </ul>
+    </div>
+</div>
+
+<script>
+    // --- 1. Dados do Quiz ---
+    const quizData = [
+        {
+            question: "Qual é a principal função da etapa de 'Planejamento das Entregas' no processo de expedição?",
+            options: [
+                "Realizar a contagem física do estoque.",
+                "Definir a melhor sequência de carregamento e a roteirização dos veículos.",
+                "Apenas emitir a nota fiscal do produto.",
+                "Selecionar os fornecedores de embalagens.",
+                "Aguardar o retorno do veículo de entrega anterior."
+            ],
+            answer: 1, // Índice da opção correta (começa em 0)
+            points: 10
+        },
+        {
+            question: "O que é 'Acondicionamento' na expedição logística?",
+            options: [
+                "O registro do produto no sistema WMS.",
+                "O processo de separação dos itens do estoque ('Picking').",
+                "A preparação e embalagem dos produtos para garantir a segurança no transporte.",
+                "A conferência da documentação fiscal.",
+                "A organização da área de recebimento."
+            ],
+            answer: 2,
+            points: 10
+        },
+        {
+            question: "Qual documento é essencial para o transporte rodoviário de cargas e deve acompanhar a mercadoria após a expedição?",
+            options: [
+                "Ordem de Compra.",
+                "Cédula de Crédito Bancário.",
+                "Nota Fiscal Eletrônica (NF-e) e Conhecimento de Transporte Eletrônico (CT-e).",
+                "Ficha de EPI (Equipamento de Proteção Individual).",
+                "Relatório de Inventário Cíclico."
+            ],
+            answer: 2,
+            points: 10
+        },
+        {
+            question: "A 'Conferência de Pedidos (Checking)' na expedição serve para:",
+            options: [
+                "Verificar o nível de combustível do veículo.",
+                "Garantir que a mercadoria separada corresponde exatamente ao pedido e à documentação.",
+                "Definir a modalidade de pagamento do frete.",
+                "Negociar descontos com a transportadora.",
+                "Treinar novos colaboradores."
+            ],
+            answer: 1,
+            points: 10
+        },
+        {
+            question: "Qual o principal objetivo da Expedição Logística?",
+            options: [
+                "Maximizar o custo de armazenagem.",
+                "Garantir a entrega do produto certo, na quantidade certa, no local certo e no prazo prometido.",
+                "Reduzir o quadro de funcionários do armazém.",
+                "Atrasar o início do transporte.",
+                "Criar um novo plano de marketing."
+            ],
+            answer: 1,
+            points: 10
+        },
+        {
+            question: "A área de 'Docas' é fundamental na expedição para:",
+            options: [
+                "Realizar reuniões com a equipe de vendas.",
+                "Servir como área de lazer para os motoristas.",
+                "Controlar e otimizar o processo de carga e descarga dos veículos.",
+                "Armazenar produtos de alto valor.",
+                "Conduzir auditorias financeiras."
+            ],
+            answer: 2,
+            points: 10
+        },
+        {
+            question: "O termo 'Cross-Docking' na expedição refere-se a um processo onde:",
+            options: [
+                "A mercadoria é armazenada por um longo período.",
+                "O produto é entregue em uma doca e imediatamente transferido para outra doca para expedição, minimizando ou eliminando a armazenagem.",
+                "Apenas produtos perecíveis são manuseados.",
+                "O transporte é realizado exclusivamente por via aérea.",
+                "Os pedidos são separados individualmente por cliente."
+            ],
+            answer: 1,
+            points: 10
+        },
+        {
+            question: "O que é 'Roteirização' no contexto da expedição?",
+            options: [
+                "O processo de fabricação do produto.",
+                "A determinação dos veículos que serão utilizados.",
+                "O planejamento dos melhores trajetos para as entregas, visando otimização de tempo e custos.",
+                "O preenchimento de formulários de feedback.",
+                "A conferência da validade dos produtos."
+            ],
+            answer: 2,
+            points: 10
+        },
+        {
+            question: "Qual etapa vem *imediatamente antes* da Expedição no fluxo logístico padrão?",
+            options: [
+                "Pós-Venda.",
+                "Recebimento.",
+                "Faturamento.",
+                "Separacão (Picking).",
+                "Compra de Matéria-Prima."
+            ],
+            answer: 3,
+            points: 10
+        },
+        {
+            question: "No 'Carregamento', o que é crucial para evitar danos à mercadoria e otimizar o transporte?",
+            options: [
+                "Deixar espaços vazios intencionalmente.",
+                "Garantir a correta distribuição e amarração da carga no veículo.",
+                "Realizar a emissão da Nota Fiscal nesse momento.",
+                "Utilizar apenas veículos pequenos.",
+                "Não documentar o processo."
+            ],
+            answer: 1,
+            points: 10
+        },
+        {
+            question: "Qual tecnologia é mais utilizada para otimizar a velocidade e precisão da conferência e leitura de itens durante a expedição?",
+            options: [
+                "Fax.",
+                "Código de Barras e RFID (Identificação por Radiofrequência).",
+                "Máquina de escrever.",
+                "Telefone fixo.",
+                "Tinta invisível."
+            ],
+            answer: 1,
+            points: 10
+        },
+        // --- Questões Avançadas (12, 13, 14, 15) ---
+        {
+            question: "Como o Sistema de Gerenciamento de Armazém (WMS) otimiza a etapa de Picking e Expedição, conforme o material de apoio?",
+            options: [
+                "Apenas substitui a planilha de controle de estoque por um software, sem impacto na produtividade.",
+                "Otimiza rotas de separação (Picking), fornece endereçamento dinâmico e automatiza a conferência de saída (Checking), garantindo a acuracidade de separação e expedição.",
+                "É um sistema focado apenas no transporte, não tendo relação com as operações internas de armazém.",
+                "Sua principal função é a emissão do CTe e da Nota Fiscal, independentemente do controle de estoque.",
+                "Gera relatórios financeiros, mas não interfere no controle de inventário ou na movimentação física."
+            ],
+            answer: 1,
+            points: 15 // Valor maior para questões avançadas
+        },
+        {
+            question: "Analisando as estratégias de Picking, qual afirmação compara corretamente o Picking por Lote e o Picking por Onda?",
+            options: [
+                "O Picking por Lote é mais focado em agilidade no transporte, enquanto o Picking por Onda é mais simples para pequenos volumes.",
+                "O Picking por Lote aumenta a produtividade ao separar itens de *vários pedidos* em uma única rota; o Picking por Onda foca em sincronizar a separação de pedidos com o agendamento de veículos (Docas), sendo a chave para a produtividade e o cumprimento de prazos.",
+                "O Picking por Lote é a estratégia mais simples com menor margem de erro, sendo o Picking por Onda ideal para itens com alta rotatividade (Curva A).",
+                "Ambas as estratégias são idênticas, mudando apenas a nomenclatura de acordo com o segmento de mercado.",
+                "O Picking por Onda é ideal para a separação de um único item por vez, enquanto o Picking por Lote foca na acuracidade do inventário cíclico."
+            ],
+            answer: 1,
+            points: 15
+        },
+        {
+            question: "Em relação ao Inventário, o que é Acuracidade de Inventário?",
+            options: [
+                "Acuracidade é a diferença entre o estoque de segurança e o ponto de pedido. O Cíclico é feito anualmente, e o Rotativo, diariamente.",
+                "Acuracidade é o percentual de conformidade entre o estoque físico e o estoque registrado no sistema (WMS/ERP).",
+                "Acuracidade é apenas a conferência do peso da carga. Ambos os inventários são métodos de contagem total (geral).",
+                "A Acuracidade deve ser sempre zero para indicar que o estoque está perfeito. O Cíclico é usado para contagem de ativos fixos e o Rotativo para materiais de consumo.",
+                "Acuracidade é o tempo que leva para encontrar um item no armazém. O Inventário Cíclico é uma contagem parcial e o Rotativo é a verificação da embalagem."
+            ],
+            answer: 1,
+            points: 15
+        },
+        {
+            question: "Qual a principal distinção operacional entre a técnica de Cross-docking e o modelo logístico tradicional com armazenagem?",
+            options: [
+                "O Cross-docking exige longo prazo de armazenagem. Transit Point é a fase final do transporte.",
+                "O Cross-docking elimina ou minimiza a estocagem, pois o produto é transferido do recebimento para a expedição imediatamente, sendo o principal risco a necessidade de perfeita sincronia.",
+                "O Cross-docking utiliza apenas transporte aéreo, enquanto o modelo tradicional utiliza rodoviário. O Transit Point é um ponto de venda.",
+                "A principal distinção é fiscal. Transit Point é um método de inventário.",
+                "O Cross-docking exige que a doca de recebimento e expedição sejam separadas por um corredor de 50 metros. Transit Point é o momento em que o produto é checado."
+            ],
+            answer: 1,
+            points: 15
+        }
+    ];
+
+    // --- 2. Variáveis de Estado ---
+    let timerInterval;
+    const timeLimit = 20 * 60; // 20 minutos em segundos
+    let timeLeft = timeLimit;
+    let quizStarted = false;
+    let startTime;
+    let studentName = '';
+    let currentScore = 0;
+    const totalQuestions = quizData.length;
+    // Recalcula total de pontos com base nas 11 questões de 10pts e 4 de 15pts: 110 + 60 = 170
+    const totalPoints = quizData.reduce((sum, q) => sum + q.points, 0);
+
+
+    // --- 3. Funções do Quiz (Manutenção) ---
+
+    function generateQuiz() {
+        const quizForm = document.getElementById('quiz-form');
+        quizForm.innerHTML = ''; // Limpa o conteúdo anterior
+
+        quizData.forEach((q, index) => {
+            const questionBox = document.createElement('div');
+            questionBox.className = 'question-box';
+
+            const questionHeader = document.createElement('h3');
+            questionHeader.textContent = `Questão ${index + 1} (${q.points} pts)`;
+            questionBox.appendChild(questionHeader);
+
+            const questionText = document.createElement('p');
+            questionText.textContent = q.question;
+            questionBox.appendChild(questionText);
+
+            // Embaralhar opções localmente para interatividade
+            const optionsIndices = [...Array(q.options.length).keys()];
+
+            optionsIndices.forEach(optIndex => {
+                const label = document.createElement('label');
+                label.className = 'option-label';
+
+                const radio = document.createElement('input');
+                radio.type = 'radio';
+                radio.name = `question_${index}`;
+                radio.value = optIndex; // O valor é o índice original da opção
+                radio.required = true;
+
+                label.appendChild(radio);
+                label.appendChild(document.createTextNode(q.options[optIndex]));
+                
+                questionBox.appendChild(label);
+            });
+
+            quizForm.appendChild(questionBox);
+        });
+    }
+
+    function updateTimer() {
+        if (!quizStarted) return;
+
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        document.getElementById('timer').textContent = 
+            `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            finishQuiz(true); // Chama finishQuiz com timeout = true
+            return;
+        }
+
+        timeLeft--;
+    }
+
+    function startQuiz() {
+        studentName = document.getElementById('student-name').value.trim();
+
+        if (studentName.length < 3) {
+            alert("Por favor, digite seu nome completo para iniciar o quiz.");
+            return;
+        }
+
+        // Configurações iniciais
+        document.getElementById('start-screen').style.display = 'none';
+        document.getElementById('quiz-box').style.display = 'block';
+        document.getElementById('results-box').style.display = 'none';
+        document.getElementById('finish-button').disabled = false;
+        
+        // Geração das questões
+        generateQuiz();
+
+        // Inicia o Cronômetro e o Estado
+        timeLeft = timeLimit;
+        startTime = new Date().getTime();
+        quizStarted = true;
+        currentScore = 0;
+        document.getElementById('score-display').textContent = '0';
+        updateTimer();
+        timerInterval = setInterval(updateTimer, 1000);
+    }
+
+    function calculateScore() {
+        let correctAnswers = 0;
+        let totalScore = 0;
+        const form = document.getElementById('quiz-form');
+        const formData = new FormData(form);
+
+        quizData.forEach((q, index) => {
+            const userAnswer = parseInt(formData.get(`question_${index}`));
+            if (userAnswer === q.answer) {
+                correctAnswers++;
+                totalScore += q.points;
+            }
+        });
+
+        return { correctAnswers, totalScore };
+    }
+
+    function finishQuiz(timedOut = false) {
+        if (!quizStarted) return; // Garante que o quiz está ativo
+        
+        clearInterval(timerInterval);
+        quizStarted = false;
+
+        const endTime = new Date().getTime();
+        const timeTakenSec = timeLimit - (timedOut ? 0 : timeLeft);
+        const timeSpent = timeTakenSec;
+        const timeSpentMin = Math.floor(timeSpent / 60);
+        const timeSpentSec = timeSpent % 60;
+        const timeSpentFormatted = `${timeSpentMin.toString().padStart(2, '0')}:${timeSpentSec.toString().padStart(2, '0')}`;
+
+        const { correctAnswers, totalScore } = calculateScore();
+
+        // Exibir resultados
+        document.getElementById('quiz-box').style.display = 'none';
+        document.getElementById('results-box').style.display = 'block';
+        
+        document.getElementById('final-name').textContent = studentName;
+        document.getElementById('correct-count').textContent = correctAnswers;
+        document.getElementById('final-score').textContent = totalScore;
+        document.getElementById('time-spent').textContent = timedOut ? `Tempo esgotado (usou os 20:00)` : timeSpentFormatted;
+        
+        // Sistema de Medalhas (Baseado na Pontuação Percentual)
+        let medal = { message: 'Continue estudando! É hora de revisar o básico.', icon: '🚫' };
+        const percentage = (totalScore / totalPoints) * 100;
+        
+        if (percentage >= 90) { // Praticamente gabaritar
+            medal = { message: 'Logístico MASTER! Excelência em Expedição e Conhecimento Avançado! 🥇', icon: '🏆' };
+            document.getElementById('medal-icon').className = 'medal-icon gold';
+        } else if (percentage >= 75) { 
+            medal = { message: 'Parabéns, Expedidor Pleno! Ótimo desempenho, foco nos conceitos avançados! 🥈', icon: '🥈' };
+            document.getElementById('medal-icon').className = 'medal-icon silver';
+        } else if (percentage >= 60) { 
+            medal = { message: 'Bom trabalho, Expedidor Júnior! Processos bem compreendidos, mas há espaço para subir no ranking. 🥉', icon: '🥉' };
+            document.getElementById('medal-icon').className = 'medal-icon bronze';
+        } else {
+             document.getElementById('medal-icon').className = 'medal-icon';
+        }
+        
+        document.getElementById('medal-message').textContent = medal.message;
+        document.getElementById('medal-icon').textContent = medal.icon;
+
+        // Registrar no Ranking e Exibir
+        const rankEntry = {
+            name: studentName,
+            score: totalScore,
+            time: timeSpent, // Tempo em segundos para desempate
+            timeFormatted: timeSpentFormatted
+        };
+
+        saveRanking(rankEntry);
+        displayRanking();
+        
+        // Opção para recomeçar (opcional)
+        // document.getElementById('start-screen').style.display = 'block';
+        // document.getElementById('student-name').value = '';
+    }
+
+    // --- 4. Funções de Ranking Local (LocalStorage) ---
+
+    function getRanking() {
+        const ranking = localStorage.getItem('quizExpedicaoRanking');
+        return ranking ? JSON.parse(ranking) : [];
+    }
+
+    function saveRanking(newEntry) {
+        let ranking = getRanking();
+        ranking.push(newEntry);
+        
+        // Ordenar: 1º por pontuação (maior para menor), 2º por tempo (menor para maior)
+        ranking.sort((a, b) => {
+            if (b.score !== a.score) {
+                return b.score - a.score; // Maior pontuação primeiro
+            }
+            return a.time - b.time; // Menor tempo primeiro (desempate)
+        });
+
+        // Limitar o ranking a, por exemplo, 10 entradas
+        ranking = ranking.slice(0, 10); 
+        
+        localStorage.setItem('quizExpedicaoRanking', JSON.stringify(ranking));
+    }
+
+    function displayRanking() {
+        const ranking = getRanking();
+        const rankingList = document.getElementById('ranking-list');
+        rankingList.innerHTML = '';
+        
+        if (ranking.length === 0) {
+            rankingList.innerHTML = '<li>Nenhum resultado registrado ainda. Seja o primeiro!</li>';
+            return;
+        }
+
+        ranking.forEach((entry, index) => {
+            const listItem = document.createElement('li');
+            const medalEmoji = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🔹';
+            
+            listItem.innerHTML = `
+                ${medalEmoji} **${entry.name}**
+                <span>${entry.score} pts (${entry.timeFormatted})</span>
+            `;
+            
+            rankingList.appendChild(listItem);
+        });
+    }
+
+    // Inicializa a exibição do ranking ao carregar a página
+    window.onload = function() {
+        displayRanking();
+    };
+
+</script>
+</body>
+</html>
